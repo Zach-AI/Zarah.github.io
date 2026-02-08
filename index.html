@@ -1,29 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Import Question</title>
-    <link rel="stylesheet" href="./public/css/style.css" />
-  </head>
-    <body>
-    <div class="container">
-      <div class="banner-gif">
-        <img id="banner" src="./public/images/mid.gif" alt="banner" />
-      </div>
-      <h1 id="question-heading">Hey There! How are you</h1>
-      <div class="buttons">
-        <button id="yes-button"><p>Yes</p></button>
-        <button id="no-button"><p>No</p></button>
-      </div>
-      <div class="message">
-        <h2 id="success-message">Yepppie, see you sooonnn :3</h2>
-        
-      </div>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Valentine</title>
+  <link rel="stylesheet" href="./public/css/style.css" />
+</head>
+<body>
+  <!-- Collage background (hidden until YES is clicked) -->
+  <div id="bg-collage" aria-hidden="true"></div>
+
+  <main class="container">
+    <img id="banner" src="./public/images/mid.gif" alt="banner" class="banner" />
+
+    <h1 id="question-heading" class="question">Will you be my Valentine? 💌</h1>
+
+    <div class="buttons">
+      <button id="yes-button" class="btn yes">Yes</button>
+      <button id="no-button" class="btn no">No</button>
     </div>
-    <div id="bg-collage"></div>
-    <script src="./public/js/script.js"></script>
-  </body>
-  
+  </main>
+
+  <script src="./public/js/script.js"></script>
+</body>
 </html>
