@@ -1,58 +1,60 @@
-const yesButton = document.getElementById("yes-button");
-const noButton = document.getElementById("no-button");
-const question = document.getElementById("question");
-const gif = document.getElementById("gif");
+document.addEventListener("DOMContentLoaded", () => {
+  const yesButton = document.getElementById("yes-button");
+  const noButton = document.getElementById("no-button");
+  const questionHeading = document.getElementById("question-heading");
+  const banner = document.getElementById("banner");
+  const collage = document.getElementById("bg-collage");
 
-// Texts shown when clicking NO
-const noTexts = [
-  "Are you sure?",
-  "Really sure??",
-  "Think again 🥺",
-  "Don’t break my heart 💔",
-  "Last chance 😢"
-];
-
-let noClickCount = 0;
-
-/* ================================
-   COLLAGE BACKGROUND FUNCTION
-================================ */
-function showCollageBackground() {
-  const images = [];
-  for (let i = 1; i <= 20; i++) {
-    images.push(`url("public/images/${i}.png")`);
+  if (!yesButton || !noButton || !questionHeading || !banner) {
+    console.error("Missing required elements. Check IDs in index.html.");
+    return;
   }
 
-  const collage = document.getElementById("bg-collage");
-  collage.style.backgroundImage = images.join(", ");
-  collage.style.display = "block";
-}
+  // NO button texts (cycles)
+  const noTexts = [
+    "No",
+    "Are you sure?",
+    "Really sure??",
+    "Think again 🥺",
+    "Don’t break my heart 💔",
+    "Last chance 😢",
+    "Ok ok… maybe? 😭"
+  ];
 
-/* ================================
-   YES BUTTON CLICK
-================================ */
-yesButton.addEventListener("click", () => {
-  question.innerHTML = "Yayyyy 💖💖💖";
-  gif.src = "public/images/yes.gif";
+  let noClickCount = 0;
 
-  showCollageBackground();
+  function showCollageBackground() {
+    // If bg-collage div doesn't exist, just skip gracefully
+    if (!collage) return;
 
-  noButton.style.display = "none";
-  yesButton.style.display = "none";
-});
+    const layers = [];
+    for (let i = 1; i <= 20; i++) {
+      layers.push(`url("./public/images/${i}.png")`);
+    }
 
-/* ================================
-   NO BUTTON CLICK
-================================ */
-noButton.addEventListener("click", () => {
-  noButton.innerHTML =
-    noTexts[noClickCount % noTexts.length];
+    collage.style.backgroundImage = layers.join(", ");
+    collage.style.display = "block";
+  }
 
-  noClickCount++;
+  // YES click
+  yesButton.addEventListener("click", () => {
+    questionHeading.textContent = "Yayyyy 💖💖💖";
+    banner.src = "./public/images/yes.gif";
 
-  // Make YES button grow every time NO is clicked
-  const currentSize = parseFloat(
-    window.getComputedStyle(yesButton).fontSize
-  );
-  yesButton.style.fontSize = currentSize + 5 + "px";
+    showCollageBackground();
+
+    // Hide buttons after Yes
+    noButton.style.display = "none";
+    yesButton.style.display = "none";
+  });
+
+  // NO click
+  noButton.addEventListener("click", () => {
+    noClickCount++;
+    noButton.textContent = noTexts[noClickCount % noTexts.length];
+
+    // Grow YES button each time NO is clicked
+    const currentSize = parseFloat(getComputedStyle(yesButton).fontSize) || 16;
+    yesButton.style.fontSize = currentSize + 6 + "px";
+  });
 });
