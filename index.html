@@ -23,15 +23,22 @@
       gap: 18px;
     }
 
-    /* MAIN IMAGE / COLLAGE AREA */
+    /* ===== First page: SMALL media box ===== */
     #media-box {
-      width: calc(100vw - 48px);   /* fills screen, keeps margin */
-      max-width: 1400px;           /* optional cap for huge screens */
-      height: min(78vh, 700px);    /* prevents bottom cropping */
+      width: min(520px, 88vw);
+      height: min(360px, 45vh);
       background: #000;
       border-radius: 18px;
       overflow: hidden;
       box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+      transition: width 400ms ease, height 400ms ease;
+    }
+
+    /* ===== After YES: BIG collage box ===== */
+    #media-box.big {
+      width: calc(100vw - 48px);
+      max-width: 1400px;
+      height: min(78vh, 700px);
     }
 
     /* Initial gif */
@@ -62,13 +69,14 @@
       height: 100%;
       object-fit: cover;
       border-radius: 12px;
-      opacity: 0;
-      animation: fadeIn 1s ease forwards;
+      opacity: 1;
+      transition: opacity 500ms ease, transform 500ms ease;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(1.03); }
-      to   { opacity: 1; transform: scale(1); }
+    /* Fade swap animation when a single tile changes */
+    #collage img.swap-out {
+      opacity: 0;
+      transform: scale(1.02);
     }
 
     .question {
@@ -99,6 +107,10 @@
 
     @media (max-width: 600px) {
       #media-box {
+        width: min(420px, 92vw);
+        height: min(300px, 40vh);
+      }
+      #media-box.big {
         width: calc(100vw - 32px);
         height: min(70vh, 620px);
       }
@@ -114,7 +126,6 @@
 
 <body>
   <main class="container">
-    <!-- MAIN IMAGE AREA -->
     <div id="media-box">
       <img id="banner" src="./public/images/mid.gif" alt="banner" />
       <div id="collage" aria-hidden="true"></div>
@@ -134,43 +145,103 @@
     const banner = document.getElementById("banner");
     const collage = document.getElementById("collage");
     const question = document.getElementById("question");
+    const mediaBox = document.getElementById("media-box");
+
+    // Change timing (10 seconds per single-tile update)
+    const SINGLE_TILE_INTERVAL_MS = 10000;
+
+    const TOTAL_IMAGES = 20;  // you have 1.PNG ... 20.PNG
+    const TILES_DESKTOP = 6;  // 3x2
+    const TILES_MOBILE = 6;   // 2x3
 
     let intervalId = null;
+    let currentShown = new Set();
 
-    function getRandomImages(count = 6) {
-      const nums = Array.from({ length: 20 }, (_, i) => i + 1);
-
-      // Shuffle
-      for (let i = nums.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [nums[i], nums[j]] = [nums[j], nums[i]];
-      }
-
-      return nums.slice(0, count);
+    function imgPath(n) {
+      // NOTE: your filenames are .PNG (case sensitive)
+      return `./public/images/${n}.PNG`;
     }
 
-    function renderCollage() {
-      collage.innerHTML = "";
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-      const picks = getRandomImages(6);
-      picks.forEach(n => {
+    function pickUniqueNumber(excludeSet) {
+      // Try a few times to avoid duplicates
+      for (let tries = 0; tries < 50; tries++) {
+        const n = randInt(1, TOTAL_IMAGES);
+        if (!excludeSet.has(n)) return n;
+      }
+      // Fallback: just return anything
+      return randInt(1, TOTAL_IMAGES);
+    }
+
+    function tileCount() {
+      return window.matchMedia("(max-width: 600px)").matches ? TILES_MOBILE : TILES_DESKTOP;
+    }
+
+    function renderInitialCollage() {
+      collage.innerHTML = "";
+      currentShown = new Set();
+
+      const count = tileCount();
+      for (let i = 0; i < count; i++) {
+        const n = pickUniqueNumber(currentShown);
+        currentShown.add(n);
+
         const img = document.createElement("img");
-        img.src = `./public/images/${n}.PNG`; // NOTE: .PNG is case-sensitive
+        img.dataset.num = String(n);
+        img.src = imgPath(n);
         img.alt = `photo ${n}`;
         collage.appendChild(img);
-      });
+      }
+    }
+
+    function swapOneRandomTile() {
+      const imgs = Array.from(collage.querySelectorAll("img"));
+      if (imgs.length === 0) return;
+
+      // Choose a tile index to replace
+      const idx = randInt(0, imgs.length - 1);
+      const target = imgs[idx];
+      const oldNum = Number(target.dataset.num);
+
+      // Make a set excluding this tile (so new can replace it)
+      const exclude = new Set(currentShown);
+      exclude.delete(oldNum);
+
+      const newNum = pickUniqueNumber(exclude);
+
+      // Animate out, then swap src, then animate in
+      target.classList.add("swap-out");
+
+      setTimeout(() => {
+        // Update tracking sets
+        currentShown.delete(oldNum);
+        currentShown.add(newNum);
+
+        target.dataset.num = String(newNum);
+        target.src = imgPath(newNum);
+
+        // animate back in
+        target.classList.remove("swap-out");
+      }, 450);
     }
 
     function startCollage() {
+      // Make the collage area big AFTER yes
+      mediaBox.classList.add("big");
+
       banner.style.display = "none";
       collage.style.display = "grid";
 
-      renderCollage();
+      renderInitialCollage();
 
-      // Change every 10 seconds
-      intervalId = setInterval(renderCollage, 10000);
+      // Replace ONLY ONE tile every 10 seconds
+      intervalId = setInterval(swapOneRandomTile, SINGLE_TILE_INTERVAL_MS);
     }
 
+    // YES
     yesBtn.addEventListener("click", () => {
       question.textContent = "Yayyyy 💖💖💖";
       startCollage();
@@ -178,14 +249,9 @@
       noBtn.style.display = "none";
     });
 
+    // NO
     let noCount = 0;
-    const noTexts = [
-      "No",
-      "Are you sure?",
-      "Really sure?",
-      "Think again 🥺",
-      "Don’t break my heart 💔"
-    ];
+    const noTexts = ["No", "Are you sure?", "Really sure?", "Think again 🥺", "Don’t break my heart 💔"];
 
     noBtn.addEventListener("click", () => {
       noCount++;
@@ -193,6 +259,13 @@
 
       const size = parseFloat(getComputedStyle(yesBtn).fontSize) || 18;
       yesBtn.style.fontSize = (size + 6) + "px";
+    });
+
+    // If screen size changes after YES, rebuild collage to fit new grid
+    window.addEventListener("resize", () => {
+      if (collage.style.display === "grid") {
+        renderInitialCollage();
+      }
     });
   </script>
 </body>
