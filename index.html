@@ -7,9 +7,8 @@
 
   <style>
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      height: 100%;
+    html, body { margin: 0; height: 100%; }
+    body {
       font-family: Arial, sans-serif;
       background: #0f172a;
       color: #e5e7eb;
@@ -24,10 +23,11 @@
       gap: 18px;
     }
 
-    /* Main image / collage container */
+    /* MAIN IMAGE / COLLAGE AREA */
     #media-box {
-      width: min(900px, 90vw);
-      aspect-ratio: 3 / 2;
+      width: calc(100vw - 48px);   /* fills screen, keeps margin */
+      max-width: 1400px;           /* optional cap for huge screens */
+      height: min(78vh, 700px);    /* prevents bottom cropping */
       background: #000;
       border-radius: 18px;
       overflow: hidden;
@@ -40,6 +40,7 @@
       height: 100%;
       object-fit: contain;
       background: #fff;
+      display: block;
     }
 
     /* Collage grid */
@@ -47,8 +48,9 @@
       width: 100%;
       height: 100%;
       display: none;
-      gap: 10px;
-      padding: 10px;
+
+      padding: 12px;
+      gap: 12px;
 
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -65,7 +67,7 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(1.05); }
+      from { opacity: 0; transform: scale(1.03); }
       to   { opacity: 1; transform: scale(1); }
     }
 
@@ -78,6 +80,7 @@
       display: flex;
       gap: 14px;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -87,46 +90,42 @@
       border-radius: 14px;
       cursor: pointer;
       box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+      transition: transform 0.12s ease;
     }
+    .btn:active { transform: scale(0.98); }
 
-    .btn.yes {
-      background: #22c55e;
-      color: #06210f;
-    }
-
-    .btn.no {
-      background: #ef4444;
-      color: #2b0707;
-    }
+    .btn.yes { background: #22c55e; color: #06210f; }
+    .btn.no  { background: #ef4444; color: #2b0707; }
 
     @media (max-width: 600px) {
+      #media-box {
+        width: calc(100vw - 32px);
+        height: min(70vh, 620px);
+      }
       #collage {
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(3, 1fr);
       }
       .question { font-size: 24px; }
+      .btn { font-size: 16px; padding: 10px 16px; }
     }
   </style>
 </head>
 
 <body>
   <main class="container">
-
     <!-- MAIN IMAGE AREA -->
     <div id="media-box">
       <img id="banner" src="./public/images/mid.gif" alt="banner" />
-      <div id="collage"></div>
+      <div id="collage" aria-hidden="true"></div>
     </div>
 
-    <h1 id="question" class="question">
-      Will you be my Valentine? 💌
-    </h1>
+    <h1 id="question" class="question">Will you be my Valentine? 💌</h1>
 
     <div class="buttons">
       <button id="yes" class="btn yes" type="button">Yes</button>
       <button id="no" class="btn no" type="button">No</button>
     </div>
-
   </main>
 
   <script>
@@ -136,21 +135,28 @@
     const collage = document.getElementById("collage");
     const question = document.getElementById("question");
 
-    let interval;
+    let intervalId = null;
 
     function getRandomImages(count = 6) {
       const nums = Array.from({ length: 20 }, (_, i) => i + 1);
-      nums.sort(() => Math.random() - 0.5);
+
+      // Shuffle
+      for (let i = nums.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [nums[i], nums[j]] = [nums[j], nums[i]];
+      }
+
       return nums.slice(0, count);
     }
 
     function renderCollage() {
       collage.innerHTML = "";
-      const imgs = getRandomImages(6);
 
-      imgs.forEach(n => {
+      const picks = getRandomImages(6);
+      picks.forEach(n => {
         const img = document.createElement("img");
-        img.src = `./public/images/${n}.PNG`;
+        img.src = `./public/images/${n}.PNG`; // NOTE: .PNG is case-sensitive
+        img.alt = `photo ${n}`;
         collage.appendChild(img);
       });
     }
@@ -158,9 +164,11 @@
     function startCollage() {
       banner.style.display = "none";
       collage.style.display = "grid";
+
       renderCollage();
 
-      interval = setInterval(renderCollage, 4000);
+      // Change every 10 seconds
+      intervalId = setInterval(renderCollage, 10000);
     }
 
     yesBtn.addEventListener("click", () => {
@@ -182,8 +190,9 @@
     noBtn.addEventListener("click", () => {
       noCount++;
       noBtn.textContent = noTexts[noCount % noTexts.length];
-      const size = parseFloat(getComputedStyle(yesBtn).fontSize);
-      yesBtn.style.fontSize = size + 6 + "px";
+
+      const size = parseFloat(getComputedStyle(yesBtn).fontSize) || 18;
+      yesBtn.style.fontSize = (size + 6) + "px";
     });
   </script>
 </body>
