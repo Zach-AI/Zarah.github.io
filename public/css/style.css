@@ -1,9 +1,9 @@
-/* Page base */
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; }
+
 body {
   font-family: Arial, sans-serif;
-  background: #0f172a; /* default background BEFORE yes */
+  background: #0f172a; /* background BEFORE yes */
   color: #e5e7eb;
   overflow-x: hidden;
 }
@@ -15,11 +15,9 @@ body {
   z-index: -1;
   display: none;
 
-  /* many layers will be set by JS */
   background-repeat: repeat;
-  background-size: 180px 180px; /* tile size */
-  opacity: 0.25; /* keep content readable */
-  filter: blur(0px);
+  background-size: 180px 180px;
+  opacity: 0.25;
 }
 
 /* Layout */
@@ -62,12 +60,18 @@ body {
   box-shadow: 0 8px 18px rgba(0,0,0,0.25);
   transition: transform 0.12s ease;
 }
+
 .btn:active { transform: scale(0.98); }
 
 .btn.yes { background: #22c55e; color: #06210f; }
 .btn.no  { background: #ef4444; color: #2b0707; }
 
-/* Mobile tweaks */
+.debug {
+  margin-top: 14px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
 @media (max-width: 420px) {
   #bg-collage { background-size: 140px 140px; }
   .question { font-size: 24px; }
