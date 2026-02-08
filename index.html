@@ -7,22 +7,28 @@
   <link rel="stylesheet" href="./public/css/style.css" />
 </head>
 <body>
-  <!-- Collage background (hidden until YES is clicked) -->
+  <!-- Full-screen collage background (hidden until YES is clicked) -->
   <div id="bg-collage" aria-hidden="true"></div>
 
   <main class="container">
-    <img id="banner" src="./public/images/mid.gif" alt="banner" class="banner" />
+    <!-- Main gif/banner -->
+    <img
+      id="banner"
+      class="banner"
+      src="./public/images/mid.gif"
+      alt="Valentine banner"
+    />
 
-    <h1 id="question-heading" class="question">Will you be my Valentine? 💌</h1>
+    <!-- Question -->
+    <h1 id="question-heading" class="question">
+      Will you be my Valentine? 💌
+    </h1>
 
+    <!-- Buttons -->
     <div class="buttons">
-      <!-- type="button" is important -->
       <button id="yes-button" type="button" class="btn yes">Yes</button>
       <button id="no-button" type="button" class="btn no">No</button>
     </div>
-
-    <!-- optional debug line (you can delete later) -->
-    <p id="debug" class="debug"></p>
   </main>
 
   <script src="./public/js/script.js"></script>
