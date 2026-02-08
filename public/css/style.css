@@ -128,4 +128,16 @@ body {
         align-items: center;
         width: 100%;
     }
+#bg-collage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  display: none;
+
+  background-size: 200px 200px;
+  background-repeat: repeat;
+}
 }
