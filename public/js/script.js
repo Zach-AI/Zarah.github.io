@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const layers = [];
     for (let i = 1; i <= 20; i++) {
-      layers.push(`url("./public/images/${i}.png")`);
+      layers.push(`url("./public/images/${i}.PNG")`);
     }
 
     collage.style.backgroundImage = layers.join(", ");
@@ -41,6 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
     questionHeading.textContent = "Yayyyy 💖💖💖";
     banner.src = "./public/images/yes.gif";
 
+    for (let i = 1; i <= 20; i++) {
+    layers.push(`url("./public/images/${i}.PNG")`);
+
+    
     showCollageBackground();
 
     // Hide buttons after Yes
