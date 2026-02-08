@@ -1,143 +1,75 @@
+/* Page base */
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
 body {
-    background-color: white;
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
+  font-family: Arial, sans-serif;
+  background: #0f172a; /* default background BEFORE yes */
+  color: #e5e7eb;
+  overflow-x: hidden;
 }
 
-.buttons {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-    flex-direction: row;
-    align-items: end;
-    flex-wrap: wrap;
-}
-
-#no-button {
-    margin: 0 10px;
-    color: white;
-    background-color: red;
-    height: 40px !important;
-    width: auto;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
-
-    p {
-        margin: 0;
-        object-fit: contain;
-    }
-}
-
-#yes-button {
-    margin: 0 10px;
-    color: white;
-    border: none;
-    background-color: green;
-    cursor: pointer;
-    height: 40px;
-
-    p {
-        margin: 0;
-        object-fit: contain;
-    }
-}
-
-/* Make responsive for mobile */
-@media (max-width: 768px) {
-    body {
-        padding: 0 20px;
-    }
-}
-
-.container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    margin-top: 20px;
-    padding: 20px;
-    text-align: center;
-}
-
-.message {
-    display: none;
-}
-
-.banner-gif {
-    width: 100%;
-    height: auto;
-    margin-top: 20px;
-
-    img {
-        width: auto;
-        height: 250px;
-    }
-}
-
-.language-selector {
-    margin-top: 30px;
-    position: unset;
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-.language-selector label {
-    margin-right: 10px;
-}
-
-.language-selector select {
-    padding: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-}
-
-.creator {
-    text-decoration: none;
-    color: #333;
-}
-
-.creator:visited {
-    text-decoration: none;
-    color: #333;
-}
-
-.creator:hover {
-    text-decoration: underline;
-    color: #555;
-}
-
-/* CSS For Mobile */
-@media (max-width: 768px) {
-    .language-selector {
-        position: unset;
-        margin-top: 30px;
-        font-family: Arial, sans-serif;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-    }
+/* Collage background - shown only after YES click */
 #bg-collage {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   z-index: -1;
   display: none;
 
-  background-size: 200px 200px;
+  /* many layers will be set by JS */
   background-repeat: repeat;
+  background-size: 180px 180px; /* tile size */
+  opacity: 0.25; /* keep content readable */
+  filter: blur(0px);
 }
+
+/* Layout */
+.container {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.banner {
+  width: 260px;
+  max-width: 70vw;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+  margin-bottom: 16px;
+}
+
+.question {
+  margin: 10px 0 18px;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: none;
+  padding: 12px 18px;
+  font-size: 18px;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.25);
+  transition: transform 0.12s ease;
+}
+.btn:active { transform: scale(0.98); }
+
+.btn.yes { background: #22c55e; color: #06210f; }
+.btn.no  { background: #ef4444; color: #2b0707; }
+
+/* Mobile tweaks */
+@media (max-width: 420px) {
+  #bg-collage { background-size: 140px 140px; }
+  .question { font-size: 24px; }
+  .btn { font-size: 16px; padding: 10px 16px; }
 }
