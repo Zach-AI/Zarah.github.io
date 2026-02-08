@@ -24,7 +24,6 @@
       gap: 18px;
     }
 
-    /* ===== First page: SMALL media box ===== */
     #media-box {
       width: min(520px, 88vw);
       height: min(360px, 45vh);
@@ -35,23 +34,19 @@
       transition: width 400ms ease, height 400ms ease;
     }
 
-    /* ===== After YES: BIG collage box ===== */
     #media-box.big {
       width: calc(100vw - 48px);
       max-width: 1400px;
       height: min(78vh, 700px);
     }
 
-    /* Main display image (gif initially, then changes on NO clicks) */
     #banner {
       width: 100%;
       height: 100%;
       object-fit: contain;
       background: #fff;
-      display: block;
     }
 
-    /* Collage (main image after YES) */
     #collage {
       width: 100%;
       height: 100%;
@@ -68,7 +63,7 @@
       height: 100%;
       object-fit: cover;
       border-radius: 12px;
-      transition: opacity 500ms ease, transform 500ms ease;
+      transition: opacity 0.4s ease;
     }
 
     .question {
@@ -90,36 +85,16 @@
       border-radius: 14px;
       cursor: pointer;
       box-shadow: 0 8px 18px rgba(0,0,0,0.25);
-      transition: transform 0.12s ease;
       user-select: none;
     }
-    .btn:active { transform: scale(0.98); }
 
     .btn.yes { background: #22c55e; color: #06210f; }
     .btn.no  { background: #ef4444; color: #2b0707; }
 
-    /* NO after 5 clicks: slippery but SAME SIZE (no shrink here) */
     .btn.no.slippery {
       position: fixed;
       z-index: 9999;
       transition: left 0.08s linear, top 0.08s linear;
-    }
-
-    @media (max-width: 600px) {
-      #media-box {
-        width: min(420px, 92vw);
-        height: min(300px, 40vh);
-      }
-      #media-box.big {
-        width: calc(100vw - 32px);
-        height: min(70vh, 620px);
-      }
-      #collage {
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: repeat(3, 1fr);
-      }
-      .question { font-size: 24px; }
-      .btn { font-size: 16px; padding: 10px 16px; }
     }
   </style>
 </head>
@@ -127,7 +102,7 @@
 <body>
   <main class="container">
     <div id="media-box">
-      <img id="banner" src="./public/images/mid.png" alt="banner" />
+      <img id="banner" src="./public/images/mid.gif" alt="banner" />
       <div id="collage"></div>
     </div>
 
@@ -147,14 +122,12 @@
     const question = document.getElementById("question");
     const mediaBox = document.getElementById("media-box");
 
-    /* --------- COLLAGE LOGIC --------- */
-    const TOTAL_IMAGES = 20;                 // 1.PNG ... 20.PNG
-    const SINGLE_TILE_INTERVAL_MS = 10000;   // 10 seconds per single-tile change
+    const TOTAL_IMAGES = 20;
+    const SINGLE_TILE_INTERVAL_MS = 10000;
     let shown = new Set();
     let intervalId = null;
 
     function imgPath(n) {
-      // Your photos are .PNG (case-sensitive)
       return `./public/images/${n}.PNG`;
     }
 
@@ -165,14 +138,10 @@
     function renderInitialCollage() {
       collage.innerHTML = "";
       shown.clear();
-
-      const count = 6; // 3x2 (mobile CSS makes it 2x3)
-
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < 6; i++) {
         let n;
         do { n = rand(1, TOTAL_IMAGES); } while (shown.has(n));
         shown.add(n);
-
         const img = document.createElement("img");
         img.dataset.num = n;
         img.src = imgPath(n);
@@ -183,16 +152,12 @@
     function swapOneTile() {
       const imgs = collage.querySelectorAll("img");
       if (!imgs.length) return;
-
       const target = imgs[rand(0, imgs.length - 1)];
       const oldNum = Number(target.dataset.num);
-
       let newNum;
       do { newNum = rand(1, TOTAL_IMAGES); } while (shown.has(newNum));
-
       shown.delete(oldNum);
       shown.add(newNum);
-
       target.style.opacity = 0;
       setTimeout(() => {
         target.dataset.num = newNum;
@@ -205,51 +170,10 @@
       mediaBox.classList.add("big");
       banner.style.display = "none";
       collage.style.display = "grid";
-
       renderInitialCollage();
       intervalId = setInterval(swapOneTile, SINGLE_TILE_INTERVAL_MS);
     }
 
-    /* --------- NO BUTTON DODGE LOGIC --------- */
-    let slipperyEnabled = false;
-
-    function moveNoButtonAnywhere() {
-      const pad = 12;
-      const rect = noBtn.getBoundingClientRect();
-
-      const maxX = window.innerWidth - rect.width - pad;
-      const maxY = window.innerHeight - rect.height - pad;
-
-      const x = rand(pad, Math.max(pad, maxX));
-      const y = rand(pad, Math.max(pad, maxY));
-
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
-    }
-
-    function enableSlipperyNo() {
-      if (slipperyEnabled) return;
-      slipperyEnabled = true;
-
-      noBtn.classList.add("slippery");
-      moveNoButtonAnywhere();
-
-      noBtn.addEventListener("mouseenter", moveNoButtonAnywhere);
-
-      // dodge even when trying to click
-      noBtn.addEventListener("mousedown", (e) => {
-        e.preventDefault();
-        moveNoButtonAnywhere();
-      });
-
-      // mobile touch dodge
-      noBtn.addEventListener("touchstart", (e) => {
-        e.preventDefault();
-        moveNoButtonAnywhere();
-      }, { passive: false });
-    }
-
-    /* --------- NO CLICK LOGIC --------- */
     let noCount = 0;
     const noTexts = [
       "No",
@@ -259,55 +183,54 @@
       "Now trying clicking NO"
     ];
 
-    function growYesButton() {
+    function growYesOnly() {
       const size = parseFloat(getComputedStyle(yesBtn).fontSize) || 18;
       yesBtn.style.fontSize = (size + 6) + "px";
     }
 
-    function updateBannerOnNoClick(count) {
-      // On NO 1..5 show 1.PNG..5.PNG
+    function updateBannerOnNo(count) {
       if (count >= 1 && count <= 5) {
-        banner.src = imgPath(count);     // 1st NO => 1.PNG etc
-        banner.style.display = "block";  // ensure visible
+        banner.src = imgPath(count);
       }
+    }
+
+    function moveNoAnywhere() {
+      const pad = 12;
+      const r = noBtn.getBoundingClientRect();
+      const maxX = window.innerWidth - r.width - pad;
+      const maxY = window.innerHeight - r.height - pad;
+      noBtn.style.left = rand(pad, Math.max(pad, maxX)) + "px";
+      noBtn.style.top  = rand(pad, Math.max(pad, maxY)) + "px";
+    }
+
+    function enableSlipperyNo() {
+      noBtn.classList.add("slippery");
+      moveNoAnywhere();
+      noBtn.addEventListener("mouseenter", moveNoAnywhere);
+      noBtn.addEventListener("mousedown", e => {
+        e.preventDefault();
+        moveNoAnywhere();
+      });
     }
 
     noBtn.addEventListener("click", () => {
       noCount++;
-
-      // NO text for first 5 clicks
       if (noCount <= 5) {
         noBtn.textContent = noTexts[noCount - 1];
-        updateBannerOnNoClick(noCount);
+        updateBannerOnNo(noCount);
       }
-
-      // YES grows on EVERY NO click
-      growYesButton();
-
-      // Enable slippery after 5 NO clicks
-      if (noCount >= 5) {
+      growYesOnly();
+      if (noCount === 5) {
         enableSlipperyNo();
       }
     });
 
-    /* --------- YES CLICK (CONFIRM POPUP) --------- */
     yesBtn.addEventListener("click", () => {
-      const ok = window.confirm("Are you sure?");
-      if (!ok) return;
-
+      if (!confirm("Are you sure?")) return;
       question.textContent = "Yayyyy 💖💖💖";
       startCollage();
       yesBtn.style.display = "none";
       noBtn.style.display = "none";
-    });
-
-    window.addEventListener("resize", () => {
-      if (collage.style.display === "grid") {
-        renderInitialCollage();
-      }
-      if (slipperyEnabled) {
-        moveNoButtonAnywhere();
-      }
     });
   </script>
 </body>
