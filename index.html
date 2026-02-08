@@ -42,6 +42,7 @@
       height: min(78vh, 700px);
     }
 
+    /* Main display image (gif initially, then changes on NO clicks) */
     #banner {
       width: 100%;
       height: 100%;
@@ -97,15 +98,11 @@
     .btn.yes { background: #22c55e; color: #06210f; }
     .btn.no  { background: #ef4444; color: #2b0707; }
 
-    /* NO after 5 clicks: tiny + slippery */
+    /* NO after 5 clicks: slippery but SAME SIZE (no shrink here) */
     .btn.no.slippery {
       position: fixed;
       z-index: 9999;
-      padding: 6px 10px;
-      font-size: 12px;
-      border-radius: 10px;
-      box-shadow: 0 12px 26px rgba(0,0,0,0.35);
-      transition: left 0.08s linear, top 0.08s linear, transform 0.08s linear;
+      transition: left 0.08s linear, top 0.08s linear;
     }
 
     @media (max-width: 600px) {
@@ -157,7 +154,8 @@
     let intervalId = null;
 
     function imgPath(n) {
-      return `./public/images/${n}.PNG`; // case-sensitive (.PNG)
+      // Your photos are .PNG (case-sensitive)
+      return `./public/images/${n}.PNG`;
     }
 
     function rand(min, max) {
@@ -168,7 +166,7 @@
       collage.innerHTML = "";
       shown.clear();
 
-      const count = (window.innerWidth < 600) ? 6 : 6;
+      const count = 6; // 3x2 (mobile CSS makes it 2x3)
 
       for (let i = 0; i < count; i++) {
         let n;
@@ -213,17 +211,9 @@
     }
 
     /* --------- NO BUTTON DODGE LOGIC --------- */
-    let noCount = 0;
-    const noTexts = [
-      "No",
-      "Are you sure?",
-      "Really sure?",
-      "Think again 🥺",
-      "Now trying clicking NO"  // 5th prompt EXACT
-    ];
+    let slipperyEnabled = false;
 
     function moveNoButtonAnywhere() {
-      // Put NO within viewport bounds with some padding
       const pad = 12;
       const rect = noBtn.getBoundingClientRect();
 
@@ -238,53 +228,84 @@
     }
 
     function enableSlipperyNo() {
+      if (slipperyEnabled) return;
+      slipperyEnabled = true;
+
       noBtn.classList.add("slippery");
-      // Place it somewhere immediately
       moveNoButtonAnywhere();
 
-      // Dodge on hover AND on attempt to click (extra evil 😄)
       noBtn.addEventListener("mouseenter", moveNoButtonAnywhere);
+
+      // dodge even when trying to click
       noBtn.addEventListener("mousedown", (e) => {
         e.preventDefault();
         moveNoButtonAnywhere();
       });
 
-      // Also dodge on touch (mobile)
+      // mobile touch dodge
       noBtn.addEventListener("touchstart", (e) => {
         e.preventDefault();
         moveNoButtonAnywhere();
       }, { passive: false });
     }
 
-    /* --------- BUTTONS --------- */
+    /* --------- NO CLICK LOGIC --------- */
+    let noCount = 0;
+    const noTexts = [
+      "No",
+      "Are you sure?",
+      "Really sure?",
+      "Think again 🥺",
+      "Now trying clicking NO"
+    ];
+
+    function growYesButton() {
+      const size = parseFloat(getComputedStyle(yesBtn).fontSize) || 18;
+      yesBtn.style.fontSize = (size + 6) + "px";
+    }
+
+    function updateBannerOnNoClick(count) {
+      // On NO 1..5 show 1.PNG..5.PNG
+      if (count >= 1 && count <= 5) {
+        banner.src = imgPath(count);     // 1st NO => 1.PNG etc
+        banner.style.display = "block";  // ensure visible
+      }
+    }
+
+    noBtn.addEventListener("click", () => {
+      noCount++;
+
+      // NO text for first 5 clicks
+      if (noCount <= 5) {
+        noBtn.textContent = noTexts[noCount - 1];
+        updateBannerOnNoClick(noCount);
+      }
+
+      // YES grows on EVERY NO click
+      growYesButton();
+
+      // Enable slippery after 5 NO clicks
+      if (noCount >= 5) {
+        enableSlipperyNo();
+      }
+    });
+
+    /* --------- YES CLICK (CONFIRM POPUP) --------- */
     yesBtn.addEventListener("click", () => {
+      const ok = window.confirm("Are you sure?");
+      if (!ok) return;
+
       question.textContent = "Yayyyy 💖💖💖";
       startCollage();
       yesBtn.style.display = "none";
       noBtn.style.display = "none";
     });
 
-    noBtn.addEventListener("click", () => {
-      noCount++;
-
-      // Update NO text for first 5 clicks
-      if (noCount <= 5) {
-        noBtn.textContent = noTexts[noCount - 1];
-        const size = parseFloat(getComputedStyle(yesBtn).fontSize) || 18;
-        yesBtn.style.fontSize = (size + 6) + "px";
-      }
-
-      // Turn on slippery mode AFTER 5 clicks
-      if (noCount === 5) {
-        enableSlipperyNo();
-      }
-    });
-
     window.addEventListener("resize", () => {
       if (collage.style.display === "grid") {
         renderInitialCollage();
       }
-      if (noBtn.classList.contains("slippery")) {
+      if (slipperyEnabled) {
         moveNoButtonAnywhere();
       }
     });
