@@ -1,16 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
   const yesButton = document.getElementById("yes-button");
   const noButton = document.getElementById("no-button");
-  const questionHeading = document.getElementById("question-heading");
+  const heading = document.getElementById("question-heading");
   const banner = document.getElementById("banner");
   const collage = document.getElementById("bg-collage");
 
-  if (!yesButton || !noButton || !questionHeading || !banner) {
-    console.error("Missing required elements. Check IDs in index.html.");
+  // Debug helper: if anything is missing, you'll see it in browser console
+  if (!yesButton || !noButton || !heading || !banner || !collage) {
+    console.error("Missing element(s):", {
+      yesButton: !!yesButton,
+      noButton: !!noButton,
+      heading: !!heading,
+      banner: !!banner,
+      collage: !!collage
+    });
     return;
   }
 
-  // NO button texts (cycles)
   const noTexts = [
     "No",
     "Are you sure?",
@@ -18,47 +24,38 @@ document.addEventListener("DOMContentLoaded", () => {
     "Think again 🥺",
     "Don’t break my heart 💔",
     "Last chance 😢",
-    "Ok ok… maybe? 😭"
+    "Okay… maybe? 😭"
   ];
 
-  let noClickCount = 0;
+  let noClicks = 0;
 
-  function showCollageBackground() {
-    // If bg-collage div doesn't exist, just skip gracefully
-    if (!collage) return;
-
+  function buildCollageBackground() {
+    // Uses public/images/1.png ... 20.png
     const layers = [];
     for (let i = 1; i <= 20; i++) {
       layers.push(`url("./public/images/${i}.PNG")`);
     }
-
     collage.style.backgroundImage = layers.join(", ");
     collage.style.display = "block";
   }
 
-  // YES click
   yesButton.addEventListener("click", () => {
-    questionHeading.textContent = "Yayyyy 💖💖💖";
+    heading.textContent = "Yayyyy 💖💖💖";
     banner.src = "./public/images/yes.gif";
 
-    for (let i = 1; i <= 20; i++) {
-    layers.push(`url("./public/images/${i}.PNG")`);
-
-    
-    showCollageBackground();
+    buildCollageBackground();
 
     // Hide buttons after Yes
-    noButton.style.display = "none";
     yesButton.style.display = "none";
+    noButton.style.display = "none";
   });
 
-  // NO click
   noButton.addEventListener("click", () => {
-    noClickCount++;
-    noButton.textContent = noTexts[noClickCount % noTexts.length];
+    noClicks += 1;
+    noButton.textContent = noTexts[noClicks % noTexts.length];
 
-    // Grow YES button each time NO is clicked
-    const currentSize = parseFloat(getComputedStyle(yesButton).fontSize) || 16;
-    yesButton.style.fontSize = currentSize + 6 + "px";
+    // Grow YES button every NO click
+    const size = parseFloat(getComputedStyle(yesButton).fontSize) || 18;
+    yesButton.style.fontSize = (size + 6) + "px";
   });
 });
