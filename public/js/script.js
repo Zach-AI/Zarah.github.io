@@ -4,16 +4,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const heading = document.getElementById("question-heading");
   const banner = document.getElementById("banner");
   const collage = document.getElementById("bg-collage");
+  const debug = document.getElementById("debug");
 
-  // Debug helper: if anything is missing, you'll see it in browser console
+  // Visible debug so you know JS is running
+  if (debug) debug.textContent = "JS loaded ✅";
+
   if (!yesButton || !noButton || !heading || !banner || !collage) {
-    console.error("Missing element(s):", {
-      yesButton: !!yesButton,
-      noButton: !!noButton,
-      heading: !!heading,
-      banner: !!banner,
-      collage: !!collage
-    });
+    console.error("Missing element(s). Check index.html IDs.");
+    if (debug) debug.textContent = "JS loaded ❌ Missing elements (check IDs).";
     return;
   }
 
@@ -30,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let noClicks = 0;
 
   function buildCollageBackground() {
-    // Uses public/images/1.png ... 20.png
+    // Your files are 1.PNG ... 20.PNG (case-sensitive)
     const layers = [];
     for (let i = 1; i <= 20; i++) {
       layers.push(`url("./public/images/${i}.PNG")`);
@@ -45,17 +43,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     buildCollageBackground();
 
-    // Hide buttons after Yes
     yesButton.style.display = "none";
     noButton.style.display = "none";
+
+    if (debug) debug.textContent = "YES clicked ✅";
   });
 
   noButton.addEventListener("click", () => {
     noClicks += 1;
     noButton.textContent = noTexts[noClicks % noTexts.length];
 
-    // Grow YES button every NO click
     const size = parseFloat(getComputedStyle(yesButton).fontSize) || 18;
     yesButton.style.fontSize = (size + 6) + "px";
+
+    if (debug) debug.textContent = `NO clicked ${noClicks} ✅`;
   });
 });
