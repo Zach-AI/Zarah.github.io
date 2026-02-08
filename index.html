@@ -50,7 +50,7 @@
       display: block;
     }
 
-    /* Collage grid */
+    /* Collage (main image after YES) */
     #collage {
       width: 100%;
       height: 100%;
@@ -76,12 +76,10 @@
     }
 
     .buttons {
-      position: relative; /* needed for NO button movement */
       display: flex;
       gap: 14px;
       justify-content: center;
       flex-wrap: wrap;
-      height: 80px;
     }
 
     .btn {
@@ -91,15 +89,23 @@
       border-radius: 14px;
       cursor: pointer;
       box-shadow: 0 8px 18px rgba(0,0,0,0.25);
-      transition: transform 0.15s ease, left 0.15s ease, top 0.15s ease;
+      transition: transform 0.12s ease;
+      user-select: none;
     }
+    .btn:active { transform: scale(0.98); }
 
     .btn.yes { background: #22c55e; color: #06210f; }
     .btn.no  { background: #ef4444; color: #2b0707; }
 
-    /* When NO becomes slippery */
-    .btn.no.dodge {
-      position: absolute;
+    /* NO after 5 clicks: tiny + slippery */
+    .btn.no.slippery {
+      position: fixed;
+      z-index: 9999;
+      padding: 6px 10px;
+      font-size: 12px;
+      border-radius: 10px;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.35);
+      transition: left 0.08s linear, top 0.08s linear, transform 0.08s linear;
     }
 
     @media (max-width: 600px) {
@@ -130,7 +136,7 @@
 
     <h1 id="question" class="question">Will you be my Valentine? 💌</h1>
 
-    <div class="buttons" id="button-area">
+    <div class="buttons">
       <button id="yes" class="btn yes" type="button">Yes</button>
       <button id="no" class="btn no" type="button">No</button>
     </div>
@@ -143,16 +149,15 @@
     const collage = document.getElementById("collage");
     const question = document.getElementById("question");
     const mediaBox = document.getElementById("media-box");
-    const buttonArea = document.getElementById("button-area");
 
-    /* --------- COLLAGE LOGIC (unchanged) --------- */
-    const TOTAL_IMAGES = 20;
-    const SINGLE_TILE_INTERVAL_MS = 10000;
-    let currentShown = new Set();
+    /* --------- COLLAGE LOGIC --------- */
+    const TOTAL_IMAGES = 20;                 // 1.PNG ... 20.PNG
+    const SINGLE_TILE_INTERVAL_MS = 10000;   // 10 seconds per single-tile change
+    let shown = new Set();
     let intervalId = null;
 
     function imgPath(n) {
-      return `./public/images/${n}.PNG`;
+      return `./public/images/${n}.PNG`; // case-sensitive (.PNG)
     }
 
     function rand(min, max) {
@@ -161,14 +166,14 @@
 
     function renderInitialCollage() {
       collage.innerHTML = "";
-      currentShown.clear();
+      shown.clear();
 
-      const count = window.innerWidth < 600 ? 6 : 6;
+      const count = (window.innerWidth < 600) ? 6 : 6;
 
       for (let i = 0; i < count; i++) {
         let n;
-        do { n = rand(1, TOTAL_IMAGES); } while (currentShown.has(n));
-        currentShown.add(n);
+        do { n = rand(1, TOTAL_IMAGES); } while (shown.has(n));
+        shown.add(n);
 
         const img = document.createElement("img");
         img.dataset.num = n;
@@ -185,10 +190,10 @@
       const oldNum = Number(target.dataset.num);
 
       let newNum;
-      do { newNum = rand(1, TOTAL_IMAGES); } while (currentShown.has(newNum));
+      do { newNum = rand(1, TOTAL_IMAGES); } while (shown.has(newNum));
 
-      currentShown.delete(oldNum);
-      currentShown.add(newNum);
+      shown.delete(oldNum);
+      shown.add(newNum);
 
       target.style.opacity = 0;
       setTimeout(() => {
@@ -207,16 +212,51 @@
       intervalId = setInterval(swapOneTile, SINGLE_TILE_INTERVAL_MS);
     }
 
-    /* --------- BUTTON LOGIC --------- */
+    /* --------- NO BUTTON DODGE LOGIC --------- */
     let noCount = 0;
     const noTexts = [
       "No",
       "Are you sure?",
       "Really sure?",
       "Think again 🥺",
-      "Don’t break my heart 💔"
+      "Now trying clicking NO"  // 5th prompt EXACT
     ];
 
+    function moveNoButtonAnywhere() {
+      // Put NO within viewport bounds with some padding
+      const pad = 12;
+      const rect = noBtn.getBoundingClientRect();
+
+      const maxX = window.innerWidth - rect.width - pad;
+      const maxY = window.innerHeight - rect.height - pad;
+
+      const x = rand(pad, Math.max(pad, maxX));
+      const y = rand(pad, Math.max(pad, maxY));
+
+      noBtn.style.left = x + "px";
+      noBtn.style.top = y + "px";
+    }
+
+    function enableSlipperyNo() {
+      noBtn.classList.add("slippery");
+      // Place it somewhere immediately
+      moveNoButtonAnywhere();
+
+      // Dodge on hover AND on attempt to click (extra evil 😄)
+      noBtn.addEventListener("mouseenter", moveNoButtonAnywhere);
+      noBtn.addEventListener("mousedown", (e) => {
+        e.preventDefault();
+        moveNoButtonAnywhere();
+      });
+
+      // Also dodge on touch (mobile)
+      noBtn.addEventListener("touchstart", (e) => {
+        e.preventDefault();
+        moveNoButtonAnywhere();
+      }, { passive: false });
+    }
+
+    /* --------- BUTTONS --------- */
     yesBtn.addEventListener("click", () => {
       question.textContent = "Yayyyy 💖💖💖";
       startCollage();
@@ -227,30 +267,26 @@
     noBtn.addEventListener("click", () => {
       noCount++;
 
+      // Update NO text for first 5 clicks
       if (noCount <= 5) {
-        noBtn.textContent = noTexts[noCount % noTexts.length];
+        noBtn.textContent = noTexts[noCount - 1];
         const size = parseFloat(getComputedStyle(yesBtn).fontSize) || 18;
-        yesBtn.style.fontSize = size + 6 + "px";
+        yesBtn.style.fontSize = (size + 6) + "px";
+      }
+
+      // Turn on slippery mode AFTER 5 clicks
+      if (noCount === 5) {
+        enableSlipperyNo();
       }
     });
 
-    /* --------- DODGE AFTER 5 NO CLICKS --------- */
-    noBtn.addEventListener("mouseenter", () => {
-      if (noCount < 5) return;
-
-      noBtn.classList.add("dodge");
-
-      const areaRect = buttonArea.getBoundingClientRect();
-      const btnRect = noBtn.getBoundingClientRect();
-
-      const maxX = areaRect.width - btnRect.width;
-      const maxY = areaRect.height - btnRect.height;
-
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
-
-      noBtn.style.left = `${x}px`;
-      noBtn.style.top = `${y}px`;
+    window.addEventListener("resize", () => {
+      if (collage.style.display === "grid") {
+        renderInitialCollage();
+      }
+      if (noBtn.classList.contains("slippery")) {
+        moveNoButtonAnywhere();
+      }
     });
   </script>
 </body>
