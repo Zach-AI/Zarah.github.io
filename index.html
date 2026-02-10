@@ -24,16 +24,15 @@
       gap: 18px;
     }
 
-    #media-box {
-      width: min(420px, 88vw);
-      height: min(460px, 45vh);
-      background: #000;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.45);
-      transition: width 400ms ease, height 400ms ease;
-    }
-
+#media-box {
+  width: min(900px, 95vw);
+  aspect-ratio: 4 / 3;   /* 🔥 this is the key */
+  background: #000;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.45);
+  transition: width 400ms ease;
+}
     #media-box.big {
       width: calc(100vw - 48px);
       max-width: 1400px;
