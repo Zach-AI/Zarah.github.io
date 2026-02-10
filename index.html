@@ -75,7 +75,20 @@
       margin: 0;
     }
 
-    .buttons {
+    
+
+    /* 🔹 NEW: question appears AFTER the image loads */
+    #question {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 800ms ease, transform 800ms ease;
+    }
+    #question.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+.buttons {
       display: flex;
       gap: 14px;
       justify-content: center;
@@ -133,7 +146,20 @@
         if (entered === null) { document.body.innerHTML = ""; return; }
         if (entered === PASSWORD) {
           document.getElementById("app").style.display = "grid";
-          return;
+          
+
+          // 🔹 NEW: show the question only after the banner image loads (with a short delay)
+          const bannerImg = document.getElementById("banner");
+          const questionEl = document.getElementById("question");
+          const revealQuestion = () => setTimeout(() => questionEl.classList.add("show"), 800);
+
+          if (bannerImg.complete) {
+            revealQuestion();
+          } else {
+            bannerImg.addEventListener("load", revealQuestion, { once: true });
+            bannerImg.addEventListener("error", revealQuestion, { once: true });
+          }
+return;
         }
         alert("Wrong password");
         tries++;
