@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Achu! <3 </title>
+  <title>Achu!d <3 </title>
 
   <style>
     * { box-sizing: border-box; }
@@ -26,9 +26,7 @@
 
     /* 🔹 ONLY CHANGE: bigger first-screen image box */
     #media-box {
-      width: auto;
-      max-height: 65vh;   /* 🔹 fits image + text in one screen */
-      aspect-ratio: auto;
+      width: min(900px, 94vw);
       background: #000;
       border-radius: 18px;
       overflow: hidden;
@@ -37,18 +35,20 @@
 
     /* unchanged */
     #media-box.big {
-      width: calc(100vw - 48px);
-      max-width: 1400px;
-      height: min(78vh, 700px);
+      width: min(1100px, 96vw);
+      /* cap height so the question + buttons stay on one screen */
+      max-height: 65vh;
     }
 
     /* 🔹 ONLY CHANGE: fill the box like your sample image */
     #banner {
       width: 100%;
-      height: 100%;
-      object-fit: contain;   /* was contain */
-      background: transparent;
+      height: auto;         /* 🔹 key: don't force 100% height */
+      max-height: 65vh;     /* 🔹 ensures everything fits in one screen */
+      object-fit: contain;  /* 🔹 never crop */
       display: block;
+      margin: 0 auto;
+      background: transparent;
     }
 
     #collage {
