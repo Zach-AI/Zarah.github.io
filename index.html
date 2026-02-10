@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Achu!d <3 </title>
+  <title>Achuc! <3 </title>
 
   <style>
     * { box-sizing: border-box; }
@@ -113,6 +113,33 @@
       position: fixed;
       z-index: 9999;
       transition: left 0.08s linear, top 0.08s linear;
+    }
+  
+    /* 🔹 NEW: Responsive YES gallery (desktop: 3 images, mobile: 4 images) */
+    .yes-grid{
+      display: grid;
+      gap: 14px;
+      justify-content: center;
+      align-items: center;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: min(1100px, 94vw);
+      margin: 18px auto 0;
+    }
+    .yes-grid .yes-item img{
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 14px;
+      object-fit: cover;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    }
+    /* Hide the 4th image by default (desktop) */
+    .yes-grid .yes-item:nth-child(4){ display: none; }
+
+    /* Mobile: 2x2 grid, show 4 images */
+    @media (max-width: 900px){
+      .yes-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .yes-grid .yes-item:nth-child(4){ display: block; }
     }
   </style>
 </head>
