@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Valentine</title>
+  <title>Achu! <3 </title>
 
   <style>
     * { box-sizing: border-box; }
@@ -24,27 +24,31 @@
       gap: 18px;
     }
 
+    /* 🔹 ONLY CHANGE: bigger first-screen image box */
     #media-box {
-      width: min(520px, 88vw);
-      height: min(360px, 45vh);
+      width: min(900px, 94vw);
       background: #000;
       border-radius: 18px;
       overflow: hidden;
       box-shadow: 0 20px 40px rgba(0,0,0,0.45);
-      transition: width 400ms ease, height 400ms ease;
     }
 
+    /* unchanged */
     #media-box.big {
-      width: calc(100vw - 48px);
-      max-width: 1400px;
-      height: min(78vh, 700px);
+      width: min(1100px, 96vw);
+      /* cap height so the question + buttons stay on one screen */
+      max-height: 65vh;
     }
 
+    /* 🔹 ONLY CHANGE: fill the box like your sample image */
     #banner {
       width: 100%;
-      height: 100%;
-      object-fit: contain;
-      background: #fff;
+      height: auto;         /* 🔹 key: don't force 100% height */
+      max-height: 65vh;     /* 🔹 ensures everything fits in one screen */
+      object-fit: contain;  /* 🔹 never crop */
+      display: block;
+      margin: 0 auto;
+      background: transparent;
     }
 
     #collage {
@@ -61,7 +65,7 @@
     #collage img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       border-radius: 12px;
       transition: opacity 0.4s ease;
     }
@@ -71,7 +75,20 @@
       margin: 0;
     }
 
-    .buttons {
+    
+
+    /* 🔹 NEW: question appears AFTER the image loads */
+    #question {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 800ms ease, transform 800ms ease;
+    }
+    #question.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+.buttons {
       display: flex;
       gap: 14px;
       justify-content: center;
@@ -87,6 +104,7 @@
       box-shadow: 0 8px 18px rgba(0,0,0,0.25);
       user-select: none;
     }
+    .btn:active { transform: scale(0.98); }
 
     .btn.yes { background: #22c55e; color: #06210f; }
     .btn.no  { background: #ef4444; color: #2b0707; }
@@ -96,13 +114,72 @@
       z-index: 9999;
       transition: left 0.08s linear, top 0.08s linear;
     }
+
+    .yes-grid .yes-item img{
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 14px;
+      object-fit: cover;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    }
+
+    /* Desktop/Laptop: show ONLY first 3 images */
+    .yes-grid .yes-item:nth-child(n+4){ display: none !important; }
+
+    /* Mobile: 2x2 grid, show ONLY first 4 images */
+    @media (max-width: 900px){
+      .yes-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .yes-grid .yes-item:nth-child(n+5){ display: none !important; }
+      .yes-grid .yes-item:nth-child(-n+4){ display: block !important; }
+    }
+.yes-grid .yes-item:nth-child(4){ display: block; }
+    }
+  
+    /* 🔹 NEW: Responsive YES gallery (desktop: 3 images, mobile: 2 images) */
+    .yes-grid{
+      display: grid;
+      gap: 14px;
+      justify-content: center;
+      align-items: center;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      max-width: min(1100px, 94vw);
+      margin: 18px auto 0;
+    }
+    .yes-grid .yes-item img{
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 14px;
+      object-fit: cover;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.25);
+    }
+
+    /* Desktop/Laptop: show ONLY first 3 images */
+    .yes-grid .yes-item:nth-child(n+4){
+      display: none !important;
+    }
+
+    /* Mobile: show ONLY first 2 images */
+    @media (max-width: 900px){
+      .yes-grid{
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .yes-grid .yes-item:nth-child(n+3){
+        display: none !important;
+      }
+      .yes-grid .yes-item:nth-child(-n+2){
+        display: block !important;
+      }
+    }
+
   </style>
 </head>
 
 <body>
-  <main class="container">
+  <main class="container" id="app" style="display:none">
     <div id="media-box">
-      <img id="banner" src="./public/images/mid.gif" alt="banner" />
+      <img id="banner" src="./public/images/mid.png" alt="banner" />
       <div id="collage"></div>
     </div>
 
@@ -114,25 +191,81 @@
     </div>
   </main>
 
+  <audio id="bg-music" loop>
+    <source src="./public/images/Gh.mp3" type="audio/mpeg">
+  </audio>
+
   <script>
+    const PASSWORD = "1234";
+
+    (function () {
+      let tries = 0;
+      while (tries < 3) {
+        const entered = prompt("Enter password to view this page:");
+        if (entered === null) { document.body.innerHTML = ""; return; }
+        if (entered === PASSWORD) {
+          document.getElementById("app").style.display = "grid";
+          
+
+          // 🔹 NEW: show the question only after the banner image loads (with a short delay)
+          const bannerImg = document.getElementById("banner");
+          const questionEl = document.getElementById("question");
+          const revealQuestion = () => setTimeout(() => questionEl.classList.add("show"), 800);
+
+          if (bannerImg.complete) {
+            revealQuestion();
+          } else {
+            bannerImg.addEventListener("load", revealQuestion, { once: true });
+            bannerImg.addEventListener("error", revealQuestion, { once: true });
+          }
+return;
+        }
+        alert("Wrong password");
+        tries++;
+      }
+      document.body.innerHTML = "";
+    })();
+
     const yesBtn = document.getElementById("yes");
     const noBtn = document.getElementById("no");
     const banner = document.getElementById("banner");
     const collage = document.getElementById("collage");
     const question = document.getElementById("question");
     const mediaBox = document.getElementById("media-box");
+    const music = document.getElementById("bg-music");
+
+    const NO_STYLE = {
+      fontSize: getComputedStyle(noBtn).fontSize,
+      padding: getComputedStyle(noBtn).padding
+    };
+
+    function lockNoSize() {
+      noBtn.style.fontSize = NO_STYLE.fontSize;
+      noBtn.style.padding = NO_STYLE.padding;
+    }
+    lockNoSize();
+
+    function growYesOnly() {
+      const size = parseFloat(getComputedStyle(yesBtn).fontSize) || 18;
+      yesBtn.style.fontSize = (size + 6) + "px";
+    }
+
+    function updateBannerOnNo(count) {
+      if (count >= 1 && count <= 5) {
+        banner.src = `./public/images/No${count}.png`;
+      }
+    }
 
     const TOTAL_IMAGES = 20;
-    const SINGLE_TILE_INTERVAL_MS = 10000;
+    const INTERVAL = 10000;
     let shown = new Set();
-    let intervalId = null;
-
-    function imgPath(n) {
-      return `./public/images/${n}.PNG`;
-    }
 
     function rand(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function imgPath(n) {
+      return `./public/images/${n}.PNG`;
     }
 
     function renderInitialCollage() {
@@ -171,7 +304,7 @@
       banner.style.display = "none";
       collage.style.display = "grid";
       renderInitialCollage();
-      intervalId = setInterval(swapOneTile, SINGLE_TILE_INTERVAL_MS);
+      setInterval(swapOneTile, INTERVAL);
     }
 
     let noCount = 0;
@@ -183,24 +316,12 @@
       "Now trying clicking NO"
     ];
 
-    function growYesOnly() {
-      const size = parseFloat(getComputedStyle(yesBtn).fontSize) || 18;
-      yesBtn.style.fontSize = (size + 6) + "px";
-    }
-
-    function updateBannerOnNo(count) {
-      if (count >= 1 && count <= 5) {
-        banner.src = imgPath(count);
-      }
-    }
-
     function moveNoAnywhere() {
+      lockNoSize();
       const pad = 12;
       const r = noBtn.getBoundingClientRect();
-      const maxX = window.innerWidth - r.width - pad;
-      const maxY = window.innerHeight - r.height - pad;
-      noBtn.style.left = rand(pad, Math.max(pad, maxX)) + "px";
-      noBtn.style.top  = rand(pad, Math.max(pad, maxY)) + "px";
+      noBtn.style.left = rand(pad, window.innerWidth - r.width - pad) + "px";
+      noBtn.style.top  = rand(pad, window.innerHeight - r.height - pad) + "px";
     }
 
     function enableSlipperyNo() {
@@ -215,18 +336,21 @@
 
     noBtn.addEventListener("click", () => {
       noCount++;
+      growYesOnly();
+      lockNoSize();
       if (noCount <= 5) {
         noBtn.textContent = noTexts[noCount - 1];
         updateBannerOnNo(noCount);
       }
-      growYesOnly();
-      if (noCount === 5) {
-        enableSlipperyNo();
-      }
+      if (noCount >= 5) enableSlipperyNo();
     });
 
     yesBtn.addEventListener("click", () => {
       if (!confirm("Are you sure?")) return;
+
+      music.volume = 0.6;
+      music.play();
+
       question.textContent = "Yayyyy 💖💖💖";
       startCollage();
       yesBtn.style.display = "none";
