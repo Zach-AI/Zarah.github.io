@@ -26,13 +26,13 @@
 
     /* 🔹 ONLY CHANGE: bigger first-screen image box */
     #media-box {
-      width: min(760px, 94vw);   /* increased */
-      aspect-ratio: 3 / 4; /* portrait to match the collage */        /* matches your image */
+      width: auto;
+      max-height: 65vh;   /* 🔹 fits image + text in one screen */
+      aspect-ratio: auto;
       background: #000;
       border-radius: 18px;
       overflow: hidden;
       box-shadow: 0 20px 40px rgba(0,0,0,0.45);
-      transition: width 400ms ease;
     }
 
     /* unchanged */
