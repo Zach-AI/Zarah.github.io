@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Achu! <3 </title>
+  <title>Achqu! <3 </title>
 
   <style>
     * { box-sizing: border-box; }
@@ -29,7 +29,7 @@
       width: min(900px, 94vw);
       background: #000;
       border-radius: 18px;
-      overflow: hidden;
+      overflow: visible;
       box-shadow: 0 20px 40px rgba(0,0,0,0.45);
     }
 
@@ -37,14 +37,14 @@
     #media-box.big {
       width: min(1100px, 96vw);
       /* cap height so the question + buttons stay on one screen */
-      max-height: 65vh;
+      
     }
 
     /* 🔹 ONLY CHANGE: fill the box like your sample image */
     #banner {
       width: 100%;
       height: auto;         /* 🔹 key: don't force 100% height */
-      max-height: 65vh;     /* 🔹 ensures everything fits in one screen */
+           /* 🔹 ensures everything fits in one screen */
       object-fit: contain;  /* 🔹 never crop */
       display: block;
       margin: 0 auto;
@@ -129,7 +129,9 @@
 
     /* Mobile: 2x2 grid, show ONLY first 4 images */
     @media (max-width: 900px){
-      .yes-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .yes-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)); 
+      overflow: visible;
+    }
       .yes-grid .yes-item:nth-child(n+5){ display: none !important; }
       .yes-grid .yes-item:nth-child(-n+4){ display: block !important; }
     }
@@ -154,7 +156,9 @@
     @media (max-width: 900px){
       .yes-grid{
         grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
+      
+      overflow: visible;
+    }
       .yes-grid .yes-item:nth-child(n+3){
         display: none !important;
       }
@@ -182,7 +186,9 @@
     @media (max-width: 900px){
       .yes-grid{
         grid-template-columns: 1fr; /* 1 column = 2 rows */
-      }
+      
+      overflow: visible;
+    }
       .yes-grid .yes-item:nth-child(n+3){
         display: none !important;
       }
@@ -200,7 +206,9 @@
       align-items: stretch;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       max-width: min(900px, 94vw);
-      margin: 18px auto 0;
+      margin: 40px auto 0;
+    
+      overflow: visible;
     }
 
     .yes-grid .yes-item img{
@@ -230,7 +238,7 @@
       inset: 0;
       pointer-events: none;
       z-index: 9998;
-      overflow: hidden;
+      overflow: visible;
     }
     .heart{
       position: absolute;
