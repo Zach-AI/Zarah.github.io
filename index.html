@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Achqu! <3 </title>
+  <title>Achu! <3 </title>
 
   <style>
     * { box-sizing: border-box; }
@@ -217,10 +217,58 @@
     .yes-grid .yes-item:nth-child(n+5){
       display: none !important;
     }
+  
+    /* 🔹 NEW: Give the "Yay" title a bit more breathing room so it doesn't feel like it's cutting the collage */
+    #question.yay {
+      margin-top: 28px;
+      line-height: 1.15;
+    }
+
+    /* 🔹 NEW: floating hearts */
+    #heart-layer{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9998;
+      overflow: hidden;
+    }
+    .heart{
+      position: absolute;
+      bottom: -30px;
+      font-size: 18px;
+      opacity: 0.9;
+      filter: drop-shadow(0 8px 18px rgba(0,0,0,0.25));
+      animation: floatUp linear forwards;
+      user-select: none;
+      will-change: transform, opacity;
+    }
+    @keyframes floatUp{
+      0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+      10%  { opacity: 0.95; }
+      100% { transform: translateY(-120vh) translateX(var(--drift)) scale(var(--scale)); opacity: 0; }
+    }
+
+    /* Tiny sparkle pop (surprise) */
+    .sparkle{
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      pointer-events: none;
+      animation: sparkle 700ms ease-out forwards;
+      filter: blur(0.2px);
+    }
+    @keyframes sparkle{
+      0% { transform: translate(0,0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+    }
+
   </style>
 </head>
 
 <body>
+  <div id="heart-layer"></div>
   <main class="container" id="app" style="display:none">
     <div id="media-box">
       <img id="banner" src="./public/images/mid.png" alt="banner" />
@@ -308,7 +356,55 @@ return;
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function imgPath(n) {
+    
+
+    // 🔹 NEW: Hearts + sparkles surprise on YES
+    const heartLayer = document.getElementById("heart-layer");
+
+    function spawnHeartBurst(count = 28) {
+      for (let i = 0; i < count; i++) {
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.textContent = ["💖","💗","💘","💝","💕","❤️"][rand(0,5)];
+        const size = rand(14, 34);
+        const left = rand(0, window.innerWidth);
+        const dur = rand(2400, 5200) / 1000;
+        const drift = rand(-120, 120) + "px";
+        const scale = (rand(70, 140) / 100).toFixed(2);
+
+        h.style.left = left + "px";
+        h.style.fontSize = size + "px";
+        h.style.animationDuration = dur + "s";
+        h.style.setProperty("--drift", drift);
+        h.style.setProperty("--scale", scale);
+
+        heartLayer.appendChild(h);
+        setTimeout(() => h.remove(), dur * 1000 + 200);
+      }
+    }
+
+    function sparkleAt(x, y, count = 18) {
+      for (let i = 0; i < count; i++) {
+        const s = document.createElement("div");
+        s.className = "sparkle";
+        s.style.left = x + "px";
+        s.style.top = y + "px";
+        s.style.setProperty("--dx", rand(-80, 80) + "px");
+        s.style.setProperty("--dy", rand(-80, 80) + "px");
+        heartLayer.appendChild(s);
+        setTimeout(() => s.remove(), 750);
+      }
+    }
+
+    function startHeartsRain(ms = 4500) {
+      const t0 = Date.now();
+      const timer = setInterval(() => {
+        spawnHeartBurst(rand(6, 10));
+        if (Date.now() - t0 > ms) clearInterval(timer);
+      }, 260);
+    }
+
+function imgPath(n) {
       return `./public/images/${n}.PNG`;
     }
 
@@ -396,7 +492,15 @@ return;
       music.play();
 
       question.textContent = "Yayyyy 💖💖💖";
-      startCollage();
+      
+      question.classList.add("yay");
+      spawnHeartBurst(40);
+      startHeartsRain(5200);
+      try {
+        const r = yesBtn.getBoundingClientRect();
+        sparkleAt(r.left + r.width/2, r.top + r.height/2, 22);
+      } catch(e) {}
+startCollage();
       yesBtn.style.display = "none";
       noBtn.style.display = "none";
     });
