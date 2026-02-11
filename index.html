@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Achqu! <3 </title>
+  <title>Achu! <3 </title>
 
   <style>
     * { box-sizing: border-box; }
@@ -81,7 +81,7 @@
     #question {
       opacity: 0;
       transform: translateY(16px);
-      transition: opacity 800ms ease, transform 800ms ease;
+      transition: opacity 1000ms ease, transform 1000ms ease;
     }
     #question.show {
       opacity: 1;
@@ -356,8 +356,8 @@ return;
       }
     }
 
-    const TOTAL_IMAGES = 20;
-    const INTERVAL = 10000;
+    const TOTAL_IMAGES = 29;
+    const INTERVAL = 6000;
     let shown = new Set();
 
     function rand(min, max) {
@@ -457,11 +457,11 @@ function imgPath(n) {
 
     let noCount = 0;
     const noTexts = [
-      "No",
-      "Are you sure?",
-      "Really sure?",
-      "Think again 🥺",
-      "Now trying clicking NO"
+      "Haaaw! Why Not? Huh!?",
+      "Oho they are not happy ketto!!",
+      "Like Reaaaaly Sure?",
+      "Why would you want to see them Sad",
+      "Oho! Anna try clicking NO now "
     ];
 
     function moveNoAnywhere() {
@@ -494,12 +494,12 @@ function imgPath(n) {
     });
 
     yesBtn.addEventListener("click", () => {
-      if (!confirm("Are you sure?")) return;
+      if (!confirm("Are you sure? I am going to be lot of headache.. think again ")) return;
 
       music.volume = 0.6;
       music.play();
 
-      question.textContent = "Yayyyy 💖💖💖";
+      question.textContent = "Thank you for making me happiest man right now, I love you! 💖💖💖";
       
       question.classList.add("yay");
       spawnHeartBurst(40);
